@@ -53,10 +53,11 @@ def update_questionnaire(questionnaire_id):
 
 @app.route('/quiz/api/v1.0/questionnaires/<int:questionnaire_id>', methods=['DELETE'])
 def delete_questionnaire(questionnaire_id):
-    boolean = Questionnaire.delete_questionnaire(questionnaire_id)
-    if not boolean:
-        return abort(404)
-    return jsonify({"status": "deleted"})
+    if not 'numero' in request.json:
+        boolean = Questionnaire.delete_questionnaire(questionnaire_id)
+        if not boolean:
+            return abort(404)
+        return jsonify({"status": "deleted"})
 
 
 
@@ -72,14 +73,11 @@ def create_question(questionnaire_id):
 
 
 
-@app.route('/quiz/api/v1.0/questionnaires/<int:questionnaire_id>', methods=['DELETE'])
-def supp_question(questionnaire_id):
-    if not request.json or not 'numero' in request.json:
-        return abort(400)
+@app.route('/quiz/api/v1.0/questionnaires/<int:questionnaire_id>/questions/<int:question_num>', methods=['DELETE'])
+def delete_question(questionnaire_id, question_num):
     
     questionnaire = Questionnaire.get_questionnaire(questionnaire_id)
-    numero = request.json['numero']
-    boolean = questionnaire.supp_question(numero)
+    boolean = questionnaire.supp_question(question_num)
     if not boolean:
         return abort(404)
     return jsonify({"status": "deleted"})
