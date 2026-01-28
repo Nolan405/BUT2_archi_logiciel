@@ -57,3 +57,39 @@ def delete_questionnaire(questionnaire_id):
     if not boolean:
         return abort(404)
     return jsonify({"status": "deleted"})
+
+
+
+@app.route('/quiz/api/v1.0/questionnaires/<int:questionnaire_id>', methods=['POST'])
+def create_question(questionnaire_id):
+    if not request.json or not 'enonce' in request.json:
+        return abort(400)
+    
+    questionnaire = Questionnaire.get_questionnaire(questionnaire_id)
+    enonce = request.json['enonce']
+    question = questionnaire.add_question(enonce)
+    return jsonify({'result': question.question_to_json()}), 201
+
+
+
+@app.route('/quiz/api/v1.0/questionnaires/<int:questionnaire_id>', methods=['DELETE'])
+def supp_question(questionnaire_id):
+    if not request.json or not 'numero' in request.json:
+        return abort(400)
+    
+    questionnaire = Questionnaire.get_questionnaire(questionnaire_id)
+    numero = request.json['numero']
+    boolean = questionnaire.supp_question(numero)
+    if not boolean:
+        return abort(404)
+    return jsonify({"status": "deleted"})
+
+
+
+@app.route('/quiz/api/v1.0/questionnaires/<int:questionnaire_id>', methods=['GET'])
+def get_questions(questionnaire_id):
+    questionnaire = Questionnaire.get_questionnaire(questionnaire_id)
+    questions = questionnaire.get_questions()
+    if questions is None:
+        return abort(404)
+    return jsonify({'result': questions.question_to_json()}), 201

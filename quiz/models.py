@@ -19,8 +19,21 @@ class Questionnaire:
     def set_nom(self, name):
         self.name = name
 
-    def add_question(self, question):
-        self.questions.append(question)
+    def get_questions(self):
+        self.questions
+
+    def add_question(self, enonce):
+        numero = len(self.questions) + 1
+        q = Question(numero, enonce)
+        self.questions.append(q)
+        return q
+    
+    def supp_question(self, numero):
+        for q in self.questions:
+            if q.get_numero() == numero:
+                self.questions.remove(q)
+                return True
+        return False
     
     @staticmethod
     def get_questionnaires():
@@ -108,6 +121,5 @@ questions_data = {
 for theme, liste_enonces in questions_data.items():
     questionnaire = Questionnaire.create_questionnaire(theme)
     
-    for i, enonce in enumerate(liste_enonces, 1):
-        nouvelle_question = Question(i, enonce)
-        questionnaire.add_question(nouvelle_question)
+    for enonce in liste_enonces:
+        questionnaire.add_question(enonce)
