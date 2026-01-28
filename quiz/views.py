@@ -1,5 +1,5 @@
 from flask import jsonify, abort, make_response, request, url_for
-from .app import app
+from .app import app, db
 from .models import Questionnaire
 
 
@@ -34,6 +34,7 @@ def create_questionnaire():
     
     nom_questionnaire = request.json['nom']
     nouvelle_quest = Questionnaire.create_questionnaire(nom_questionnaire)
+    db.session.commit()
     return jsonify({'result': nouvelle_quest.questionnaire_to_json()}), 201
 
 
@@ -53,11 +54,10 @@ def update_questionnaire(questionnaire_id):
 
 @app.route('/quiz/api/v1.0/questionnaires/<int:questionnaire_id>', methods=['DELETE'])
 def delete_questionnaire(questionnaire_id):
-    if not 'numero' in request.json:
-        boolean = Questionnaire.delete_questionnaire(questionnaire_id)
-        if not boolean:
-            return abort(404)
-        return jsonify({"status": "deleted"})
+    boolean = Questionnaire.delete_questionnaire(questionnaire_id)
+    if not boolean:
+        return abort(404)
+    return jsonify({"status": "deleted"})
 
 
 
@@ -67,19 +67,29 @@ def create_question(questionnaire_id):
         return abort(400)
     
     questionnaire = Questionnaire.get_questionnaire(questionnaire_id)
+    if not questionnaire:
+        return abort(404)
+    
     enonce = request.json['enonce']
     question = questionnaire.add_question(enonce)
+
+    db.session.add(question)
+    db.session.commit()
     return jsonify({'result': question.question_to_json()}), 201
 
 
 
 @app.route('/quiz/api/v1.0/questionnaires/<int:questionnaire_id>/questions/<int:question_num>', methods=['DELETE'])
 def delete_question(questionnaire_id, question_num):
-    
     questionnaire = Questionnaire.get_questionnaire(questionnaire_id)
+    if not questionnaire:
+        return abort(404)
+    
     boolean = questionnaire.supp_question(question_num)
     if not boolean:
         return abort(404)
+    
+    db.session.commit()
     return jsonify({"status": "deleted"})
 
 
@@ -87,7 +97,11 @@ def delete_question(questionnaire_id, question_num):
 @app.route('/quiz/api/v1.0/questionnaires/<int:questionnaire_id>', methods=['GET'])
 def get_questions(questionnaire_id):
     questionnaire = Questionnaire.get_questionnaire(questionnaire_id)
+    if not questionnaire:
+        return abort(404)
+    
     questions = questionnaire.get_questions()
     if questions is None:
         return abort(404)
+    
     return jsonify({'result': questions.question_to_json()}), 201

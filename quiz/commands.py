@@ -3,6 +3,7 @@ from .models import Questionnaire, Question
 
 @app.cli.command()
 def syncdb():
+    db.drop_all()
     db.create_all()
 
     qz1 = Questionnaire.create_questionnaire('Culture Générale')
