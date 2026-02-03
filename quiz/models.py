@@ -18,9 +18,16 @@ class Questionnaire(db.Model):
     def set_nom(self, name):
         self.name = name
 
-    def add_question(self, enonce):
+    def add_question_ouverte(self, enonce, reponse):
         numero = len(self.questions) + 1
-        q = Question(numero=numero, enonce=enonce, questionnaire=self)
+        q = QuestionOuverte(numero=numero, enonce=enonce, reponse=reponse, questionnaire=self)
+        db.session.add(q)
+        return q
+
+    def add_question_ferme(self, enonce, proposition_1, proposition_2, ind_reponse):
+        numero = len(self.questions) + 1
+        q = QuestionFerme(numero=numero, enonce=enonce, proposition_1=proposition_1, proposition_2=proposition_2, ind_reponse=ind_reponse, questionnaire=self)
+        db.session.add(q)
         return q
     
     def supp_question(self, numero):
@@ -81,6 +88,12 @@ class Question(db.Model):
     numero = db.Column(db.Integer)
     enonce = db.Column(db.String(200))
     questionnaire_id = db.Column(db.Integer, db.ForeignKey('questionnaire.id'), nullable=False)
+    type = db.Column(db.String(120))
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'question',
+        'polymorphic_on': type
+    }
 
     def __init__(self, numero, enonce, questionnaire = None, questionnaire_id = None):
         self.numero = numero
@@ -101,4 +114,58 @@ class Question(db.Model):
             "numero": self.numero,
             "enonce": self.enonce
         }
+
+
+class QuestionOuverte(Question):
+    __tablename__ = 'question_ouverte'
+    id = db.Column(db.Integer, db.ForeignKey('question.id'), primary_key=True)
+    reponse = db.Column(db.String(200))
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'ouverte',
+    }
     
+    def __init__(self, numero, enonce, reponse, questionnaire = None, questionnaire_id = None):
+        super().__init__(numero, enonce, questionnaire, questionnaire_id)
+        self.reponse = reponse
+
+    def get_reponse(self):
+        return self.reponse
+    
+    def question_to_json(self):
+        data = super().question_to_json()
+        data['reponse'] = self.reponse
+        return data
+    
+
+class QuestionFerme(Question):
+    __tablename__ = 'question_ferme'
+    id = db.Column(db.Integer, db.ForeignKey('question.id'), primary_key=True)
+    proposition1 = db.Column(db.String(200))
+    proposition2 = db.Column(db.String(200))
+    ind_reponse = db.Column(db.Integer)
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'fermee',
+    }
+    
+    def __init__(self, numero, enonce, proposition1, proposition2, ind_reponse, questionnaire = None, questionnaire_id = None):
+        super().__init__(numero, enonce, questionnaire, questionnaire_id)
+        self.proposition1 = proposition1
+        self.proposition2 = proposition2
+        self.ind_reponse = ind_reponse
+
+    def get_proposition1(self):
+        return self.proposition1
+    
+    def get_proposition2(self):
+        return self.proposition2
+    
+    def get_ind_reponse(self):
+        return self.ind_reponse
+    
+    def question_to_json(self):
+        data = super().question_to_json()
+        data['propositions'] = [self.proposition1, self.proposition2]
+        data['ind_reponse'] = self.ind_reponse
+        return data
