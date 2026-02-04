@@ -24,9 +24,9 @@ class Questionnaire(db.Model):
         db.session.add(q)
         return q
 
-    def add_question_ferme(self, enonce, proposition_1, proposition_2, ind_reponse):
+    def add_question_ferme(self, enonce, proposition1, proposition2, ind_reponse):
         numero = len(self.questions) + 1
-        q = QuestionFerme(numero=numero, enonce=enonce, proposition_1=proposition_1, proposition_2=proposition_2, ind_reponse=ind_reponse, questionnaire=self)
+        q = QuestionFerme(numero=numero, enonce=enonce, proposition1=proposition1, proposition2=proposition2, ind_reponse=ind_reponse, questionnaire=self)
         db.session.add(q)
         return q
     
