@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app">
+        <h2 title="Autre valeur">{{ textTitre }}</h2>
+        <input type="text" placeholder="Modifier le titre" v-model="textTitre">
+        <p>{{ message }}</p>
+        <p>Compteur : {{ compteur }}</p>
+        <button @click="reset">reset</button>
+        <button @click="decrementer">-</button>
+        <button @click="incrementer">+</button>
+        </br></br>
+        <label for="com">Valeur compteur</label>
+        <input type="number" name="comp" id="comp" v-model="compteur">
+        <p v-if="compteur % 2 == 0">mon compteur est un multiple de 2</p>
+        <p v-else>mon compteur n'est pas un multiple de 2</p>
+    </div>
+    
+    <script type="module">
+        import { createApp } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
+
+        createApp({
+            data() {
+                return {
+                    message : "Hello world !",
+                    compteur : 0,
+                    textTitre : "Titre par defaut",
+                }
+            },
+            methods:{
+                incrementer(){
+                    this.compteur++; 
+                },
+                decrementer(){
+                    this.compteur--; 
+                },
+                reset(){
+                    this.compteur = 0; 
+                }
+            }
+        }).mount("#app")
+    </script>
+</body>
+</html>
