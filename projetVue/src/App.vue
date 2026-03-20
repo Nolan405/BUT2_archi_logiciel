@@ -1,7 +1,5 @@
 <script>
 
-import TodoItem from ’./components/TodoItem.vue’;
-
 let data = {
   todos: [{ text: 'Faire les courses', checked: true }, { text: 'Apprendre REST', checked: false }],
   title: 'Mes tâches',
@@ -22,10 +20,9 @@ export default {
           checked: false
         });
         this.newItem = '';
-      } 
+      }
     }
   }
-  components: { TodoItem }
 }
 </script>
 
@@ -58,4 +55,3 @@ export default {
   </div>
 </div>
 </template>
-
